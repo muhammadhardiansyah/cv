@@ -1,0 +1,2403 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Azandhi Career OS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
+
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: "Poppins", sans-serif;
+        }
+
+        /* Latar Belakang Pola Grid Khas SaaS */
+        .bg-grid-pattern {
+            background-size: 32px 32px;
+            background-image:
+                linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+        }
+
+        /* Scrollbar Professional - High Density */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Animasi */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slideUp {
+            animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes pulse-soft {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .animate-pulse-soft {
+            animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* Print Formatting Presisi (Memastikan PDF Tidak Kosong) */
+        @media print {
+            .print-hidden {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+                overflow: visible !important;
+            }
+
+            body * {
+                visibility: hidden;
+            }
+
+            .print-container,
+            .print-container * {
+                visibility: visible;
+            }
+
+            .print-container {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                max-width: 100%;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            @page {
+                size: A4;
+                margin: 10mm 15mm;
+            }
+        }
+    </style>
+</head>
+
+<body class="w-screen h-screen overflow-hidden">
+    <div id="root" class="w-full h-full"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ─── BRANDING SYSTEM ───
+        const BRAND = {
+            maroon: "#8B0D2F",
+            maroonHover: "#700a25",
+            maroonLight: "#8B0D2F12",
+            slateDark: "#0f172a",
+        };
+
+        // ─── KONEKSI REST API GOOGLE SHEETS ───
+        const GAS_API_URL =
+            "https://script.google.com/macros/s/AKfycbztQk-IyT7Xjm82KOhM8QwigY4LyX286f67rAi6fPu2astYxLzcRu2gQIolKb40qUg/exec";
+
+        // ─── LOGO SVG ───
+        const AzandhiLogo = ({
+            variant = "dark",
+            className = "h-5 sm:h-6",
+            showText = true,
+        }) => {
+            const isDark = variant === "dark";
+            return (
+                <div className={`flex items-center gap-2 ${className} shrink-0`}>
+                    <svg
+                        viewBox="0 0 100 100"
+                        className="h-full aspect-square drop-shadow-sm"
+                    >
+                        {isDark ? (
+                            <rect
+                                x="4"
+                                y="4"
+                                width="92"
+                                height="92"
+                                rx="22"
+                                fill="transparent"
+                                stroke="#FFFFFF"
+                                strokeWidth="8"
+                            />
+                        ) : (
+                            <rect width="100" height="100" rx="22" fill={BRAND.maroon} />
+                        )}
+                        <path
+                            d="M 20 85 Q 50 15 80 85"
+                            fill="none"
+                            stroke="#FFFFFF"
+                            strokeWidth="8"
+                            strokeLinecap="round"
+                        />
+                        <path
+                            d="M 33 85 Q 50 40 67 85"
+                            fill="none"
+                            stroke="#FFFFFF"
+                            strokeWidth="8"
+                            strokeLinecap="round"
+                        />
+                        <path
+                            d="M 46 85 Q 50 70 54 85"
+                            fill="none"
+                            stroke="#FFFFFF"
+                            strokeWidth="8"
+                            strokeLinecap="round"
+                        />
+                    </svg>
+                    {showText && (
+                        <div className="flex flex-col justify-center leading-none select-none">
+                            <span
+                                className="font-bold tracking-[0.18em] text-[15px] leading-none"
+                                style={{
+                                    color: isDark ? "#fff" : BRAND.slateDark,
+                                    fontFamily: "'Poppins',sans-serif",
+                                }}
+                            >
+                                AZANDHI
+                            </span>
+                            <span
+                                className="font-semibold tracking-[0.25em] text-[9px] mt-1 leading-none opacity-80"
+                                style={{
+                                    color: isDark ? "#fff" : BRAND.maroon,
+                                    fontFamily: "'Poppins',sans-serif",
+                                }}
+                            >
+                                ACADEMY
+                            </span>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // ─── GEMINI ENGINE (MEGA LOAD BALANCING POOL) ───
+        const GEMINI_API_KEYS = [
+            "AIzaSyDsN9H29PD0Tggja7-xMxO-yQyh35shYNA",
+            "AIzaSyA_UKesZuia335qv-3_1bKOtjVz3XZGQ4Q",
+            "AIzaSyDX7si4mMaIQtA8vhf9RkLj_RJI9-020EQ",
+            "AIzaSyCV2iOr4GlIFHdKB7ph4a3QvbVAwr9aFX0",
+            "AIzaSyCBLzXDSZyU8S6y3My_83YoLe3KhAUK60A",
+            "AIzaSyAqRFrVHRrKWwijpw654kbEqLUh9x8aYOs",
+            "AIzaSyBmU5xNI9ENW4RTU2gI8RUtPR7pQ5DsS2Q",
+            "AIzaSyBe50RVYFZqtiPkjIsGqSyNNE_HK8FGOAg",
+            "AIzaSyABXlEqFraqmEFLQyKkwLvqe9vVTqNpJlo",
+            "AIzaSyD9jlH7-u6hpEFWLti1VSxbRrdZoq5mkdk",
+            "AIzaSyDf1IvkQuQ8Rd7lJ3IfDrCIi2r0ftMWr4k",
+            "AIzaSyB1AX3X8Iq7eEBMfqike_E-c4Atsbq7fJM",
+            "AIzaSyDV796ctTIbdZ9BXJdP6it6zHfqL_fVOZ8",
+            "AIzaSyBO0NK6WUlMGd1J2UL4UXjAk-V8zem0dRo",
+            "AIzaSyA1cqQ63dZNFCIP6nrsLEgfT9eoHFeEeX8",
+            "AIzaSyAaV5Ly-4ErrqQcgHfrCW6qPWBM_r6FSpk",
+            "AIzaSyDdlOGNolPzAHoXfdd-85mnHXlpb6UPhuE",
+            "AIzaSyD9r8oai0AmMo-3DJD10qTToJ3fF78icsA",
+            "AIzaSyDumCWCuggt4XlFP-qSGyFFXzSrlPzym7I",
+            "AIzaSyBgrcj__-0PUDaYr4_wnD-yZYFkgGVSiOc",
+            "AIzaSyAwi0Mq-odrI8DiOB8OcjPph7ASXlBe1sA",
+            "AIzaSyB4naEtqOJSZ2ZvMVrre7uN-ueRAFzkv9g",
+            "AIzaSyDTItALKqJEUFqXanT9UMw-tJ8mvrqw740",
+            "AIzaSyDy1KNsvF2yjt5Ph3eKatcCesj_MKP0BBw",
+            "AIzaSyBAZ9b4ZV1gSnOn83SaLX-p23Pv4l2rAAk",
+            "AIzaSyC4Ovyl4LcuPhnOcjpmtG0Qh-qJe-7EBWY",
+            "AIzaSyASiySQ44GsIrZ0vjsSrNuRKeJUgqtpPbg",
+            "AIzaSyBYcWMQwLgSWadERTxNPw6boiZizPYNMbQ",
+            "AIzaSyDLj9ixBqSw8BI24MLcc2Q2zvcHE0mef4g",
+            "AIzaSyC5cXJMRxiK0ERQluCicZ4nvMTtMFs5x_g",
+            "AIzaSyC0Vynw48kuOCXxNun6EIU1LlO4v1DAcL4",
+            "AIzaSyBGEEMltXAnDa22hz7n66iSWL-HXOxMyFA",
+            "AIzaSyAGb0OxMQi_6O7g950ox9g2Nd9hCI2BmF8",
+            "AIzaSyDCTHAisu1rU54cVv7eNiyVF-bXMCCjTqk",
+            "AIzaSyARTTMMZ6hSU7KtlDv_TXq7HVTKPJjODQg",
+            "AIzaSyCJyw9Ycjc2iIAT5dLOmPgYYOms7QUpqZ8",
+            "AIzaSyB0KpXZyWg2_w6hZd9W2rJuCyduE9dBrm8",
+            "AIzaSyCPY4iWXcRhtVtW99nkmY5ywoPKPd0srNk",
+            "AIzaSyBFbyuGMV02EsyYh7wekJUgp_oDeD7vHFE",
+            "AIzaSyCq6RMrGD1G01-PvK2QlRVrrKPezvecNGg",
+            "AIzaSyBBNJDuheB9tfqGlSjyJ9LAnNi1feuOX3c",
+            "AIzaSyBIdRXjTFFwlUyiKobEXOJC0Nwl9WaRqO8",
+            "AIzaSyDyeKapsenmJYvv-I8Z-ozg_hhKIvrJ-aA",
+            "AIzaSyAzg67OCJbSLGConAK235tDfvYw8_r-D-k",
+            "AIzaSyBsSPm4wjEzmTkO-deArfhyDWqQjaLqwFk",
+            "AIzaSyA1sC9HsosCA0OEs8mozOtYsP8xGCweu-Y",
+            "AIzaSyCtV57HGqfWqRCJdXffzONkvY6QEjpa0aM",
+            "AIzaSyBPEUBZm53oVeNxumovCEofkqQdeJYh26w",
+            "AIzaSyCUNrFgoZ6BZNyctvyGFKUC4k1klmouWeo",
+            "AIzaSyBspDOb1O4FJgi_Dp-J-BJI4xA9RB_g0us",
+        ];
+        const GEMINI_MODEL = "gemini-2.5-flash";
+
+        const SYSTEM_PROMPT = `Anda adalah elite career coach dan CV strategist dari Azandhi Academy.
+Gunakan Bahasa Indonesia yang profesional, formal, dan berorientasi bisnis.
+
+ATURAN KERAS (WAJIB DIPATUHI):
+1. TANPA BASA-BASI: DILARANG KERAS menuliskan kalimat pembuka atau penutup (seperti "Tentu, berikut adalah...", "Berikut hasilnya...", dll). Langsung berikan hasil akhirnya saja.
+2. SUPER RINGKAS: Setiap poin MAKSIMAL HANYA 5 sampai 7 kata. Potong semua kata yang tidak penting. Buat sangat padat.
+3. FORMAT SIMBOL: Awali setiap baris HANYA dengan karakter peluru bulat "• ". JANGAN pernah menggunakan karakter asterisk (*), strip (-), atau angka.
+4. KONTEN: JANGAN mengarang metrik. Gunakan action verbs kuat di awal kalimat.`;
+
+        const callGemini = async (
+            prompt,
+            system = SYSTEM_PROMPT,
+            jsonMode = false,
+        ) => {
+            if (!GEMINI_API_KEYS || GEMINI_API_KEYS.length === 0) {
+                return jsonMode
+                    ? { error: true, message: "API Key belum diatur." }
+                    : "⚠️ [Mode Demo] API Key belum diatur.";
+            }
+
+            const body = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: system }] },
+                generationConfig: jsonMode
+                    ? { responseMimeType: "application/json", temperature: 0.3 }
+                    : { temperature: 0.7 },
+            };
+
+            for (let attempt = 0; attempt < 5; attempt++) {
+                try {
+                    const randomKey =
+                        GEMINI_API_KEYS[
+                        Math.floor(Math.random() * GEMINI_API_KEYS.length)
+                        ];
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${randomKey}`;
+
+                    const res = await fetch(url, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(body),
+                    });
+
+                    if (!res.ok) {
+                        if (res.status === 429) throw new Error("RATE_LIMIT");
+                        throw new Error(`HTTP Error ${res.status}`);
+                    }
+
+                    const data = await res.json();
+                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+                    if (jsonMode)
+                        return JSON.parse(
+                            (text || "")
+                                .replace(/```json\n?/g, "")
+                                .replace(/```\n?/g, "")
+                                .trim(),
+                        );
+                    return text;
+                } catch (e) {
+                    if (attempt === 4) {
+                        if (e.message === "RATE_LIMIT")
+                            return jsonMode
+                                ? {
+                                    error: true,
+                                    message: "Semua jalur server AI sedang penuh.",
+                                }
+                                : "⚠️ Seluruh jaringan AI sedang sibuk. Mohon tunggu beberapa saat.";
+                        return jsonMode
+                            ? { error: true, message: e.message }
+                            : `Error AI: ${e.message}`;
+                    }
+                    await new Promise((r) => setTimeout(r, 500));
+                }
+            }
+        };
+
+        // ─── KOMPONÉN INPUT HIGH-DENSITY (COMPACT & ISOLATED) ───
+        const InputGroup = ({
+            label,
+            value,
+            onChange,
+            type = "text",
+            placeholder = "",
+        }) => {
+            const [localValue, setLocalValue] = useState(value || "");
+
+            useEffect(() => {
+                if (value !== localValue) setLocalValue(value || "");
+            }, [value]);
+
+            const handleChange = (e) => {
+                setLocalValue(e.target.value);
+                onChange(e.target.value);
+            };
+
+            return (
+                <div className="mb-3.5">
+                    <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">
+                        {label}
+                    </label>
+                    <input
+                        type={type}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md outline-none transition-all text-[12px] text-slate-800 focus:bg-white focus:border-slate-400 focus:shadow-sm"
+                        value={localValue}
+                        onChange={handleChange}
+                        placeholder={placeholder}
+                    />
+                </div>
+            );
+        };
+
+        // ─── CORE MODELS ───
+        const createEmptyCV = (base = null) => {
+            const id = "cv_" + Date.now() + Math.floor(Math.random() * 1000);
+            if (base)
+                return {
+                    ...base,
+                    id,
+                    title: `${base.title} (Copy)`,
+                    lastModified: Date.now(),
+                };
+            return {
+                id,
+                title: "CV Baru",
+                targetRole: "",
+                level: "Profesional",
+                template: "professional",
+                lastModified: Date.now(),
+                personal: {
+                    fullName: "",
+                    jobTitle: "",
+                    email: "",
+                    phone: "",
+                    location: "",
+                    linkedin: "",
+                },
+                summary: { rawText: "", finalAiText: "" },
+                experience: [],
+                education: [],
+                skills: [],
+                languages: [],
+                certifications: [],
+            };
+        };
+        const createExp = () => ({
+            id: "exp_" + Date.now(),
+            role: "",
+            company: "",
+            startDate: "",
+            endDate: "",
+            current: false,
+            rawDescription: "",
+            description: "",
+        });
+
+        // ─── MAIN APP COMPONENT ───
+        const App = () => {
+            const [user, setUser] = useState(null);
+            const [cvs, setCvs] = useState([]);
+            const [activeCv, setActiveCv] = useState(null);
+            const [view, setView] = useState("landing");
+            const [step, setStep] = useState(0);
+            const [saving, setSaving] = useState(false);
+            const [emailInput, setEmailInput] = useState("");
+            const [aiLoading, setAiLoading] = useState(false);
+            const [exportingWord, setExportingWord] = useState(false);
+            const [showMobilePreview, setShowMobilePreview] = useState(false);
+
+            const STEPS = [
+                {
+                    id: "target",
+                    label: "Target Posisi",
+                    icon: "fa-bullseye",
+                    desc: "Arah Karir",
+                },
+                {
+                    id: "personal",
+                    label: "Data Pribadi",
+                    icon: "fa-user",
+                    desc: "Kontak Dasar",
+                },
+                {
+                    id: "experience",
+                    label: "Pengalaman",
+                    icon: "fa-briefcase",
+                    desc: "Riwayat Kerja",
+                },
+                {
+                    id: "education",
+                    label: "Pendidikan",
+                    icon: "fa-graduation-cap",
+                    desc: "Akademik",
+                },
+                {
+                    id: "skills",
+                    label: "Keahlian",
+                    icon: "fa-layer-group",
+                    desc: "Teknis & Bahasa",
+                },
+                {
+                    id: "summary",
+                    label: "Ringkasan",
+                    icon: "fa-file-lines",
+                    desc: "Profil Singkat",
+                },
+                {
+                    id: "finish",
+                    label: "Selesai",
+                    icon: "fa-flag-checkered",
+                    desc: "Cetak Dokumen",
+                },
+            ];
+
+            // ─── FETCH EXTERNAL API (HEADLESS CMS CONNECTION) ───
+            const loadDataFromSheets = async (email) => {
+                if (GAS_API_URL.includes("YOUR_SCRIPT_ID")) {
+                    console.warn(
+                        "URL Backend belum di-set. Menjalankan Mode Offline (UI Only).",
+                    );
+                    return;
+                }
+                try {
+                    const res = await fetch(GAS_API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" }, // DITAMBAHKAN UNTUK CORS
+                        body: JSON.stringify({ action: "loadCVs", email: email }),
+                    });
+                    const responseData = await res.json();
+                    if (responseData.success) {
+                        const validData = (responseData.data || []).filter(
+                            (d) => d && d.id,
+                        );
+                        setCvs(validData.sort((a, b) => b.lastModified - a.lastModified));
+                    }
+                } catch (e) {
+                    console.error("Gagal terhubung ke Database Google Sheets", e);
+                }
+            };
+
+            const handleLogin = () => {
+                if (!emailInput.includes("@")) {
+                    alert("Mohon masukkan alamat email yang valid.");
+                    return;
+                }
+                setUser({ email: emailInput });
+                loadDataFromSheets(emailInput);
+                setView("dashboard");
+            };
+
+            const handleLogout = () => {
+                setUser(null);
+                setCvs([]);
+                setActiveCv(null);
+                setView("landing");
+            };
+            const handleCreateNew = () => {
+                setActiveCv(createEmptyCV());
+                setView("builder");
+                setStep(0);
+            };
+            const handleOpenCV = (cv) => {
+                setActiveCv({ ...cv });
+                setView("builder");
+                setStep(0);
+            };
+
+            const handleSave = async () => {
+                if (!user || !activeCv) return;
+                setSaving(true);
+                const toSave = { ...activeCv, lastModified: Date.now() };
+
+                if (GAS_API_URL.includes("YOUR_SCRIPT_ID")) {
+                    // Mode Offline / Simulasi Canvas
+                    setCvs((prev) => {
+                        const ex = prev.find((c) => c.id === activeCv.id);
+                        return ex
+                            ? prev.map((c) => (c.id === activeCv.id ? toSave : c))
+                            : [toSave, ...prev];
+                    });
+                    setTimeout(() => setSaving(false), 800);
+                    return;
+                }
+
+                try {
+                    const res = await fetch(GAS_API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" }, // DITAMBAHKAN UNTUK CORS
+                        body: JSON.stringify({
+                            action: "saveCV",
+                            cvData: JSON.stringify(toSave),
+                            email: user.email,
+                        }),
+                    });
+                    const data = await res.json();
+                    if (data && data.success) {
+                        setCvs((prev) => {
+                            const ex = prev.find((c) => c.id === activeCv.id);
+                            return ex
+                                ? prev.map((c) => (c.id === activeCv.id ? toSave : c))
+                                : [toSave, ...prev];
+                        });
+                        alert("✅ Berhasil disimpan ke Cloud!");
+                    } else {
+                        alert(
+                            "Gagal menyimpan ke server cloud: " +
+                            (data?.error || "Unknown error"),
+                        );
+                    }
+                } catch (e) {
+                    alert("Gagal koneksi ke server Cloud Database: " + e.message);
+                }
+                setSaving(false);
+            };
+
+            const handleDeleteCV = async (e, id) => {
+                e.stopPropagation();
+                if (
+                    !confirm(
+                        "Apakah Anda yakin ingin menghapus CV ini secara permanen?",
+                    )
+                )
+                    return;
+
+                if (!GAS_API_URL.includes("YOUR_SCRIPT_ID")) {
+                    try {
+                        await fetch(GAS_API_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "text/plain;charset=utf-8" }, // DITAMBAHKAN UNTUK CORS
+                            body: JSON.stringify({ action: "deleteCV", id: id }),
+                        });
+                    } catch (e) {
+                        console.error("Error deleting from cloud:", e);
+                    }
+                }
+                setCvs((prev) => prev.filter((c) => c.id !== id));
+            };
+
+            const upd = (section, field, val) =>
+                setActiveCv((prev) =>
+                    section
+                        ? { ...prev, [section]: { ...prev[section], [field]: val } }
+                        : { ...prev, [field]: val },
+                );
+            const updArr = (section, id, field, val) =>
+                setActiveCv((prev) => ({
+                    ...prev,
+                    [section]: prev[section].map((item) =>
+                        item.id === id ? { ...item, [field]: val } : item,
+                    ),
+                }));
+            const addArr = (section, def) =>
+                setActiveCv((prev) => ({
+                    ...prev,
+                    [section]: [...prev[section], def],
+                }));
+            const delArr = (section, id) =>
+                setActiveCv((prev) => ({
+                    ...prev,
+                    [section]: prev[section].filter((item) => item.id !== id),
+                }));
+
+            // ─── EXPORT KANA MS WORD PRESISI (DIPERBAIKI) ───
+            const handleExportWord = async () => {
+                setExportingWord(true);
+                try {
+                    if (!window.docx) {
+                        alert(
+                            "Sistem pembuat Word belum termuat. Pastikan koneksi internet stabil lalu Refresh halaman.",
+                        );
+                        setExportingWord(false);
+                        return;
+                    }
+
+                    const {
+                        Document,
+                        Packer,
+                        Paragraph,
+                        TextRun,
+                        AlignmentType,
+                        BorderStyle,
+                    } = window.docx;
+                    const cv = activeCv;
+
+                    if (!cv || !cv.personal) {
+                        alert(
+                            "Data CV tidak lengkap. Mohon isi informasi pribadi terlebih dahulu.",
+                        );
+                        setExportingWord(false);
+                        return;
+                    }
+
+                    const fmtDate = (dt) => {
+                        // ... (TETAP BIARKAN KODE BAWAHNYA SAMA SEPERTI SEBELUMNYA) ...
+                        if (!dt) return "";
+                        try {
+                            const d = new Date(dt);
+                            return d.toLocaleDateString("id-ID", {
+                                month: "long",
+                                year: "numeric",
+                            });
+                        } catch (e) {
+                            return "";
+                        }
+                    };
+
+                    const FONT = "Arial";
+                    const children = [];
+
+                    // 1. NAMA LENGKAP
+                    children.push(
+                        new Paragraph({
+                            children: [
+                                new TextRun({
+                                    text: (
+                                        cv.personal?.fullName || "NAMA LENGKAP"
+                                    ).toUpperCase(),
+                                    bold: true,
+                                    size: 32,
+                                    font: FONT,
+                                }),
+                            ],
+                            alignment: AlignmentType.LEFT,
+                            spacing: { after: 100 },
+                        }),
+                    );
+
+                    // 2. KONTAK
+                    const contactParts = [
+                        cv.personal?.location,
+                        cv.personal?.phone,
+                        cv.personal?.email,
+                        cv.personal?.linkedin?.replace(/^https?:\/\//, ""),
+                    ]
+                        .filter(Boolean)
+                        .join(" / ");
+                    if (contactParts) {
+                        children.push(
+                            new Paragraph({
+                                children: [
+                                    new TextRun({ text: contactParts, size: 20, font: FONT }),
+                                ],
+                                alignment: AlignmentType.LEFT,
+                                spacing: { after: 300 },
+                            }),
+                        );
+                    }
+
+                    // Fungsi Header Seksi
+                    const createSectionHeader = (title) => {
+                        return new Paragraph({
+                            children: [
+                                new TextRun({
+                                    text: title.toUpperCase(),
+                                    bold: true,
+                                    size: 24,
+                                    font: FONT,
+                                }),
+                            ],
+                            border: {
+                                bottom: {
+                                    color: "000000",
+                                    space: 1,
+                                    value: BorderStyle.SINGLE,
+                                    size: 6,
+                                },
+                            },
+                            spacing: { before: 300, after: 150 },
+                        });
+                    };
+
+                    // 3. PROFIL SINGKAT
+                    const summaryText = cv.summary?.finalAiText || cv.summary?.rawText;
+                    if (summaryText) {
+                        children.push(createSectionHeader("PROFIL SINGKAT"));
+                        children.push(
+                            new Paragraph({
+                                children: [
+                                    new TextRun({ text: summaryText, size: 22, font: FONT }),
+                                ],
+                                alignment: AlignmentType.JUSTIFIED,
+                                spacing: { after: 120, line: 276 },
+                            }),
+                        );
+                    }
+
+                    // 4. PENDIDIKAN
+                    if (cv.education?.length > 0) {
+                        children.push(createSectionHeader("PENDIDIKAN"));
+                        cv.education.forEach((edu) => {
+                            const eduTitleParts = [
+                                edu.degree?.toUpperCase(),
+                                edu.field?.toUpperCase(),
+                                edu.grade ? `IPK ${edu.grade}` : null,
+                            ]
+                                .filter(Boolean)
+                                .join(" / ");
+
+                            children.push(
+                                new Paragraph({
+                                    children: [
+                                        new TextRun({
+                                            text: eduTitleParts,
+                                            bold: true,
+                                            size: 22,
+                                            font: FONT,
+                                        }),
+                                    ],
+                                    spacing: { after: 40 },
+                                }),
+                            );
+
+                            const dateStr = `${fmtDate(edu.startDate)} – ${fmtDate(edu.endDate)}`;
+                            const schoolStr = [dateStr, edu.school]
+                                .filter(Boolean)
+                                .join(" / ");
+
+                            children.push(
+                                new Paragraph({
+                                    children: [
+                                        new TextRun({ text: schoolStr, size: 22, font: FONT }),
+                                    ],
+                                    spacing: { after: edu.achievements ? 80 : 150 },
+                                }),
+                            );
+
+                            if (edu.achievements) {
+                                edu.achievements
+                                    .split("\n")
+                                    .filter((l) => l.trim())
+                                    .forEach((line) => {
+                                        const cleanLine = line.replace(/^•\s*/, "").trim();
+                                        children.push(
+                                            new Paragraph({
+                                                children: [
+                                                    new TextRun({
+                                                        text: cleanLine,
+                                                        size: 22,
+                                                        font: FONT,
+                                                    }),
+                                                ],
+                                                bullet: { level: 0 },
+                                                spacing: { after: 40, line: 276 },
+                                            }),
+                                        );
+                                    });
+                                children.push(
+                                    new Paragraph({ text: "", spacing: { after: 80 } }),
+                                );
+                            }
+                        });
+                    }
+
+                    // 5. PENGALAMAN KERJA
+                    if (cv.experience?.length > 0) {
+                        children.push(createSectionHeader("PENGALAMAN KERJA"));
+                        cv.experience.forEach((exp) => {
+                            const roleCompany = [exp.role?.toUpperCase(), exp.company]
+                                .filter(Boolean)
+                                .join(" / ");
+                            children.push(
+                                new Paragraph({
+                                    children: [
+                                        new TextRun({
+                                            text: roleCompany,
+                                            bold: true,
+                                            size: 22,
+                                            font: FONT,
+                                        }),
+                                    ],
+                                    spacing: { after: 40 },
+                                }),
+                            );
+
+                            const dateStr = `${fmtDate(exp.startDate)} – ${exp.current ? "Saat Ini" : fmtDate(exp.endDate)}`;
+                            children.push(
+                                new Paragraph({
+                                    children: [
+                                        new TextRun({ text: dateStr, size: 22, font: FONT }),
+                                    ],
+                                    spacing: { after: 80 },
+                                }),
+                            );
+
+                            const desc = exp.description || exp.rawDescription || "";
+                            desc
+                                .split("\n")
+                                .filter((l) => l.trim())
+                                .forEach((line) => {
+                                    const cleanLine = line.replace(/^•\s*/, "").trim();
+                                    children.push(
+                                        new Paragraph({
+                                            children: [
+                                                new TextRun({
+                                                    text: cleanLine,
+                                                    size: 22,
+                                                    font: FONT,
+                                                }),
+                                            ],
+                                            bullet: { level: 0 },
+                                            spacing: { after: 40, line: 276 },
+                                        }),
+                                    );
+                                });
+                            children.push(
+                                new Paragraph({ text: "", spacing: { after: 100 } }),
+                            );
+                        });
+                    }
+
+                    // 6. SERTIFIKASI DAN PELATIHAN
+                    if (cv.certifications?.length > 0) {
+                        children.push(createSectionHeader("SERTIFIKASI DAN PELATIHAN"));
+                        cv.certifications.forEach((cert) => {
+                            const certStr = [cert.name, cert.issuer, cert.year]
+                                .filter(Boolean)
+                                .join(" / ");
+                            children.push(
+                                new Paragraph({
+                                    children: [
+                                        new TextRun({ text: certStr, size: 22, font: FONT }),
+                                    ],
+                                    bullet: { level: 0 },
+                                    spacing: { after: 60 },
+                                }),
+                            );
+                        });
+                        children.push(
+                            new Paragraph({ text: "", spacing: { after: 100 } }),
+                        );
+                    }
+
+                    // 7. KEAHLIAN DAN KETERAMPILAN
+                    // PERBAIKAN: Membersihkan karakter Enter (\n), Tab, dan spasi berlebih
+                    const cleanSkills = (cv.skills || [])
+                        .map((s) =>
+                            s
+                                .replace(/[\n\r\t]/g, " ")
+                                .replace(/\s{2,}/g, " ")
+                                .trim(),
+                        )
+                        .filter(Boolean);
+
+                    const languages = cv.languages || [];
+
+                    if (cleanSkills.length > 0 || languages.length > 0) {
+                        children.push(createSectionHeader("KEAHLIAN DAN KETERAMPILAN"));
+
+                        if (cleanSkills.length > 0) {
+                            children.push(
+                                new Paragraph({
+                                    children: [
+                                        new TextRun({
+                                            text: "Keterampilan Teknis: ",
+                                            bold: true,
+                                            size: 22,
+                                            font: FONT,
+                                        }),
+                                        new TextRun({
+                                            text: cleanSkills.join(", "),
+                                            size: 22,
+                                            font: FONT,
+                                        }),
+                                    ],
+                                    alignment: AlignmentType.LEFT, // Memaksa rata kiri agar tidak melebar
+                                    spacing: { after: 80, line: 276 },
+                                }),
+                            );
+                        }
+
+                        if (languages.length > 0) {
+                            const langStr = languages
+                                .map((l) => `${l.name} (${l.level})`)
+                                .join(", ");
+                            children.push(
+                                new Paragraph({
+                                    children: [
+                                        new TextRun({
+                                            text: "Bahasa: ",
+                                            bold: true,
+                                            size: 22,
+                                            font: FONT,
+                                        }),
+                                        new TextRun({ text: langStr, size: 22, font: FONT }),
+                                    ],
+                                    alignment: AlignmentType.LEFT, // Memaksa rata kiri
+                                    spacing: { after: 80, line: 276 },
+                                }),
+                            );
+                        }
+                    }
+
+                    const docObj = new Document({
+                        sections: [
+                            {
+                                properties: {
+                                    page: {
+                                        margin: {
+                                            top: 1440,
+                                            right: 1440,
+                                            bottom: 1440,
+                                            left: 1440,
+                                        },
+                                    },
+                                },
+                                children,
+                            },
+                        ],
+                    });
+
+                    // Mengeksekusi pembuatan file Word
+                    const blob = await Packer.toBlob(docObj);
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `${(cv.title || "CV_Azandhi").replace(/[^a-z0-9]/gi, "_")}.docx`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    alert("✅ File Word berhasil diunduh!");
+                } catch (e) {
+                    console.error("Word export error:", e);
+                    alert(
+                        "❌ Gagal mengekspor Word. " +
+                        (e.message || "Coba lagi atau periksa koneksi internet."),
+                    );
+                } finally {
+                    setExportingWord(false);
+                }
+            };
+
+            // ─── COMPACT BUILDER UI (WORKSPACE) ───
+            const renderStep = () => {
+                const sid = STEPS[step].id;
+
+                if (sid === "target")
+                    return (
+                        <div className="animate-slideUp max-w-2xl mx-auto">
+                            <h2 className="text-[18px] font-bold mb-1 text-slate-900 tracking-tight">
+                                Target & Posisi
+                            </h2>
+                            <p className="text-[12px] text-slate-500 mb-5">
+                                Mendefinisikan target agar AI dapat menyelaraskan kata kunci
+                                spesifik untuk sistem ATS.
+                            </p>
+
+                            <div className="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200">
+                                <InputGroup
+                                    label="Nama Dokumen (Teks Internal)"
+                                    value={activeCv.title}
+                                    onChange={(v) => upd(null, "title", v)}
+                                    placeholder="Contoh: Data Analyst - 2024"
+                                />
+                                <InputGroup
+                                    label="Target Posisi Pekerjaan"
+                                    value={activeCv.targetRole}
+                                    onChange={(v) => upd(null, "targetRole", v)}
+                                    placeholder="Contoh: Senior Data Scientist"
+                                />
+
+                                <div className="mt-2">
+                                    <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wider">
+                                        Level Karir
+                                    </label>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                        {["Lulusan Baru", "Profesional", "Eksekutif"].map(
+                                            (lv) => {
+                                                const isActive = activeCv.level === lv;
+                                                return (
+                                                    <button
+                                                        key={lv}
+                                                        type="button"
+                                                        onClick={() => upd(null, "level", lv)}
+                                                        className={`py-2 px-3 rounded-md text-[12px] font-semibold transition-all border ${isActive ? "shadow-sm" : "hover:bg-slate-50"}`}
+                                                        style={{
+                                                            backgroundColor: isActive
+                                                                ? BRAND.maroon
+                                                                : "#fff",
+                                                            borderColor: isActive
+                                                                ? BRAND.maroon
+                                                                : "#e2e8f0",
+                                                            color: isActive ? "#fff" : "#64748b",
+                                                        }}
+                                                    >
+                                                        {lv}
+                                                    </button>
+                                                );
+                                            },
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+
+                if (sid === "personal")
+                    return (
+                        <div className="animate-slideUp max-w-3xl mx-auto">
+                            <h2 className="text-[18px] font-bold mb-1 text-slate-900 tracking-tight">
+                                Data Pribadi
+                            </h2>
+                            <p className="text-[12px] text-slate-500 mb-5">
+                                Informasi kontak ini akan ditampilkan pada kop dokumen
+                                (header) CV Anda.
+                            </p>
+
+                            <div className="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-0.5">
+                                <InputGroup
+                                    label="Nama Lengkap"
+                                    value={activeCv.personal.fullName}
+                                    onChange={(v) => upd("personal", "fullName", v)}
+                                    placeholder="John Doe"
+                                />
+                                <InputGroup
+                                    label="Title Profesional"
+                                    value={activeCv.personal.jobTitle}
+                                    onChange={(v) => upd("personal", "jobTitle", v)}
+                                    placeholder="Senior Software Engineer"
+                                />
+                                <InputGroup
+                                    label="Alamat Email"
+                                    type="email"
+                                    value={activeCv.personal.email}
+                                    onChange={(v) => upd("personal", "email", v)}
+                                    placeholder="johndoe@email.com"
+                                />
+                                <InputGroup
+                                    label="Nomor Telepon/WA"
+                                    value={activeCv.personal.phone}
+                                    onChange={(v) => upd("personal", "phone", v)}
+                                    placeholder="+62 812 3456 7890"
+                                />
+                                <InputGroup
+                                    label="Kota, Negara Asal"
+                                    value={activeCv.personal.location}
+                                    onChange={(v) => upd("personal", "location", v)}
+                                    placeholder="Bandung, Indonesia"
+                                />
+                                <InputGroup
+                                    label="Tautan LinkedIn"
+                                    value={activeCv.personal.linkedin}
+                                    onChange={(v) => upd("personal", "linkedin", v)}
+                                    placeholder="linkedin.com/in/nama-anda"
+                                />
+                            </div>
+                        </div>
+                    );
+
+                if (sid === "experience")
+                    return (
+                        <div className="animate-slideUp max-w-3xl mx-auto w-full">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-4 gap-3">
+                                <div>
+                                    <h2 className="text-[18px] font-bold text-slate-900 tracking-tight mb-0.5">
+                                        Riwayat Pekerjaan
+                                    </h2>
+                                    <p className="text-[12px] text-slate-500">
+                                        Tulis draf bebas, AI akan mengkonversinya ke poin ATS.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => addArr("experience", createExp())}
+                                    className="w-full sm:w-auto px-3 py-2 rounded-md text-[11px] font-bold text-white shadow-sm hover:shadow-md transition flex items-center justify-center gap-1.5 shrink-0"
+                                    style={{ backgroundColor: BRAND.slateDark }}
+                                >
+                                    <i className="fa-solid fa-plus"></i> Tambah Pengalaman
+                                </button>
+                            </div>
+
+                            {activeCv.experience.length === 0 && (
+                                <div className="text-center py-8 bg-white rounded-xl border border-slate-200 shadow-sm">
+                                    <div className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-2 text-slate-400 text-sm">
+                                        <i className="fa-solid fa-briefcase"></i>
+                                    </div>
+                                    <h3 className="text-[13px] font-bold text-slate-700 mb-0.5">
+                                        Belum ada pengalaman
+                                    </h3>
+                                    <p className="text-slate-500 text-[11px]">
+                                        Tekan tombol di atas untuk mulai menambahkan.
+                                    </p>
+                                </div>
+                            )}
+
+                            {activeCv.experience.map((exp, index) => (
+                                <div
+                                    key={exp.id}
+                                    className="bg-white p-4 md:p-5 rounded-xl border border-slate-200 mb-5 shadow-sm relative group"
+                                >
+                                    <div
+                                        className="absolute top-0 left-0 w-[3px] h-full rounded-l-xl"
+                                        style={{ backgroundColor: BRAND.maroon }}
+                                    ></div>
+                                    <div className="flex justify-between items-center mb-3 border-b border-slate-100 pb-2">
+                                        <h3 className="font-bold text-[13px] text-slate-800">
+                                            Pengalaman #{index + 1}
+                                        </h3>
+                                        <button
+                                            onClick={() => delArr("experience", exp.id)}
+                                            className="w-6 h-6 rounded-md bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition"
+                                        >
+                                            <i className="fa-solid fa-trash text-[10px]"></i>
+                                        </button>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-0 w-full overflow-hidden">
+                                        <InputGroup
+                                            label="Posisi / Jabatan"
+                                            value={exp.role}
+                                            onChange={(v) =>
+                                                updArr("experience", exp.id, "role", v)
+                                            }
+                                            placeholder="Contoh: Product Manager"
+                                        />
+                                        <InputGroup
+                                            label="Nama Perusahaan"
+                                            value={exp.company}
+                                            onChange={(v) =>
+                                                updArr("experience", exp.id, "company", v)
+                                            }
+                                            placeholder="Contoh: PT Jaya Abadi"
+                                        />
+
+                                        <div className="mb-3.5 w-full">
+                                            <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">
+                                                Mulai
+                                            </label>
+                                            <input
+                                                type="month"
+                                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md outline-none text-[12px] focus:bg-white focus:border-slate-400 transition-all"
+                                                value={exp.startDate}
+                                                onChange={(e) =>
+                                                    updArr(
+                                                        "experience",
+                                                        exp.id,
+                                                        "startDate",
+                                                        e.target.value,
+                                                    )
+                                                }
+                                            />
+                                        </div>
+
+                                        <div className="mb-3.5 w-full">
+                                            <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">
+                                                Selesai
+                                            </label>
+                                            <div className="flex flex-row items-center gap-2 w-full">
+                                                <input
+                                                    type="month"
+                                                    disabled={exp.current}
+                                                    className="min-w-0 flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-md outline-none disabled:bg-slate-100 disabled:text-slate-400 text-[12px] focus:bg-white focus:border-slate-400 transition-all"
+                                                    value={exp.endDate}
+                                                    onChange={(e) =>
+                                                        updArr(
+                                                            "experience",
+                                                            exp.id,
+                                                            "endDate",
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                />
+                                                <label className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-slate-600 cursor-pointer bg-white px-2.5 py-2 rounded-md border border-slate-200 hover:bg-slate-50 transition shrink-0 whitespace-nowrap">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="w-3.5 h-3.5 accent-slate-800"
+                                                        checked={exp.current}
+                                                        onChange={(e) =>
+                                                            updArr(
+                                                                "experience",
+                                                                exp.id,
+                                                                "current",
+                                                                e.target.checked,
+                                                            )
+                                                        }
+                                                    />{" "}
+                                                    Saat Ini
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-1 bg-slate-50/50 p-3.5 rounded-lg border border-slate-200 w-full overflow-hidden">
+                                        <div className="flex flex-col md:flex-row gap-4">
+                                            <div className="flex-1 min-w-0">
+                                                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">
+                                                    Draft Mentah Anda
+                                                </label>
+                                                <textarea
+                                                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-md outline-none text-[12px] resize-y focus:border-slate-400 shadow-sm min-h-[90px] transition-all"
+                                                    value={exp.rawDescription}
+                                                    onChange={(e) =>
+                                                        updArr(
+                                                            "experience",
+                                                            exp.id,
+                                                            "rawDescription",
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    placeholder="Tulis bebas: Saya memimpin 5 orang untuk meluncurkan aplikasi..."
+                                                />
+                                                <button
+                                                    onClick={async () => {
+                                                        if (!exp.rawDescription) {
+                                                            alert("Mohon isi draf mentah terlebih dahulu!");
+                                                            return;
+                                                        }
+                                                        setAiLoading(true);
+
+                                                        // Memanggil AI dengan instruksi penekanan ekstra
+                                                        const promptText = `Ubah narasi ini menjadi poin-poin CV. Ingat: Tanpa basa-basi, JANGAN pakai tanda bintang (*), dan WAJIB MAKSIMAL 5-7 kata per poin! Narasi: ${exp.rawDescription}`;
+                                                        const res = await callGemini(promptText);
+
+                                                        // Membersihkan jika AI masih bandel memasukkan tanda bintang atau spasi berlebih
+                                                        const cleanRes = res
+                                                            .replace(/\*/g, "") // Hapus semua tanda bintang
+                                                            .replace(/•\s+•/g, "•") // Hapus jika ada bullet ganda
+                                                            .replace(/^[\s\n]+|[\s\n]+$/g, ""); // Hapus enter kosong di awal/akhir
+
+                                                        updArr(
+                                                            "experience",
+                                                            exp.id,
+                                                            "description",
+                                                            cleanRes,
+                                                        );
+                                                        setAiLoading(false);
+                                                    }}
+                                                    className="mt-2 w-full text-[11px] font-bold text-white py-2 rounded-md shadow-sm hover:shadow-md transition flex items-center justify-center gap-1.5"
+                                                    style={{ backgroundColor: BRAND.maroon }}
+                                                >
+                                                    <i className="fa-solid fa-wand-magic-sparkles"></i>{" "}
+                                                    Rapikan dengan AI
+                                                </button>
+                                            </div>
+                                            <div className="flex-1 flex flex-col min-w-0">
+                                                <label
+                                                    className="flex items-center gap-1 text-[10px] font-bold mb-1.5 uppercase tracking-wide"
+                                                    style={{ color: BRAND.maroon }}
+                                                >
+                                                    <i className="fa-solid fa-check-circle"></i> Hasil
+                                                    Final (Untuk CV)
+                                                </label>
+                                                <textarea
+                                                    className="w-full flex-1 px-3 py-2 border border-slate-200 bg-white rounded-md outline-none text-[12px] resize-y shadow-sm min-h-[90px] focus:border-slate-400 transition-all"
+                                                    value={exp.description}
+                                                    onChange={(e) =>
+                                                        updArr(
+                                                            "experience",
+                                                            exp.id,
+                                                            "description",
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    placeholder="• Hasil konversi AI akan muncul di sini..."
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    );
+
+                if (sid === "education")
+                    return (
+                        <div className="animate-slideUp max-w-3xl mx-auto w-full">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-4 gap-3">
+                                <div>
+                                    <h2 className="text-[18px] font-bold text-slate-900 tracking-tight mb-0.5">
+                                        Pendidikan
+                                    </h2>
+                                    <p className="text-[12px] text-slate-500">
+                                        Latar belakang akademik dan pencapaian selama studi.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() =>
+                                        addArr("education", {
+                                            id: "edu_" + Date.now(),
+                                            school: "",
+                                            degree: "",
+                                            field: "",
+                                            grade: "",
+                                        })
+                                    }
+                                    className="w-full sm:w-auto px-3 py-2 rounded-md text-[11px] font-bold text-white shadow-sm hover:shadow-md transition flex items-center justify-center gap-1.5 shrink-0"
+                                    style={{ backgroundColor: BRAND.slateDark }}
+                                >
+                                    <i className="fa-solid fa-plus"></i> Tambah Pendidikan
+                                </button>
+                            </div>
+
+                            {activeCv.education.length === 0 && (
+                                <div className="text-center py-8 bg-white rounded-xl border border-slate-200 shadow-sm">
+                                    <div className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-2 text-slate-400 text-sm">
+                                        <i className="fa-solid fa-graduation-cap"></i>
+                                    </div>
+                                    <h3 className="text-[13px] font-bold text-slate-700 mb-0.5">
+                                        Belum ada data pendidikan
+                                    </h3>
+                                    <p className="text-slate-500 text-[11px]">
+                                        Tekan tombol di atas untuk menambahkan institusi akademik.
+                                    </p>
+                                </div>
+                            )}
+
+                            {activeCv.education.map((edu) => (
+                                <div
+                                    key={edu.id}
+                                    className="bg-white p-4 md:p-5 rounded-xl border border-slate-200 mb-5 shadow-sm relative group overflow-hidden"
+                                >
+                                    <button
+                                        onClick={() => delArr("education", edu.id)}
+                                        className="absolute top-4 right-4 w-6 h-6 rounded-md bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition"
+                                    >
+                                        <i className="fa-solid fa-trash text-[10px]"></i>
+                                    </button>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-0 w-full">
+                                        <InputGroup
+                                            label="Nama Institusi"
+                                            value={edu.school}
+                                            onChange={(v) =>
+                                                updArr("education", edu.id, "school", v)
+                                            }
+                                            placeholder="Contoh: Universitas Indonesia"
+                                        />
+                                        <InputGroup
+                                            label="Gelar / Jenjang"
+                                            value={edu.degree}
+                                            onChange={(v) =>
+                                                updArr("education", edu.id, "degree", v)
+                                            }
+                                            placeholder="Contoh: Sarjana (S1)"
+                                        />
+                                        <InputGroup
+                                            label="Fakultas / Program Studi"
+                                            value={edu.field}
+                                            onChange={(v) =>
+                                                updArr("education", edu.id, "field", v)
+                                            }
+                                            placeholder="Contoh: Teknik Informatika"
+                                        />
+                                        <InputGroup
+                                            label="IPK / Nilai"
+                                            value={edu.grade}
+                                            onChange={(v) =>
+                                                updArr("education", edu.id, "grade", v)
+                                            }
+                                            placeholder="Contoh: 3.85/4.00"
+                                        />
+                                        <InputGroup
+                                            label="Tahun Mulai"
+                                            type="month"
+                                            value={edu.startDate}
+                                            onChange={(v) =>
+                                                updArr("education", edu.id, "startDate", v)
+                                            }
+                                        />
+                                        <InputGroup
+                                            label="Tahun Lulus"
+                                            type="month"
+                                            value={edu.endDate}
+                                            onChange={(v) =>
+                                                updArr("education", edu.id, "endDate", v)
+                                            }
+                                        />
+                                    </div>
+                                    <div className="mt-1">
+                                        <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">
+                                            Pencapaian Akademik (Opsional)
+                                        </label>
+                                        <textarea
+                                            className="w-full px-3 py-2 border border-slate-200 rounded-md outline-none text-[12px] resize-y bg-slate-50 focus:bg-white focus:border-slate-400 transition"
+                                            value={edu.achievements}
+                                            onChange={(e) =>
+                                                updArr(
+                                                    "education",
+                                                    edu.id,
+                                                    "achievements",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            rows="2"
+                                            placeholder="Beasiswa, kompetisi, publikasi, organisasi..."
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    );
+
+                if (sid === "skills")
+                    return (
+                        <div className="animate-slideUp max-w-3xl mx-auto w-full">
+                            <h2 className="text-[18px] font-bold text-slate-900 tracking-tight mb-0.5">
+                                Keahlian & Bahasa
+                            </h2>
+                            <p className="text-[12px] text-slate-500 mb-4">
+                                Sistem ATS akan memfilter dokumen Anda berdasarkan kecocokan
+                                kata kunci di bagian ini.
+                            </p>
+
+                            <div className="bg-white p-4 md:p-5 rounded-xl border border-slate-200 shadow-sm mb-4">
+                                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">
+                                    Keahlian Teknis (Hard Skills & Tools)
+                                </label>
+                                <textarea
+                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-md text-[12px] min-h-[90px] focus:bg-white focus:border-slate-400 outline-none transition shadow-inner leading-relaxed"
+                                    value={(activeCv.skills || []).join(", ")}
+                                    onChange={(e) => {
+                                        // 1. Ubah setiap tombol Enter (\n) menjadi spasi biasa agar tata letak tidak rusak
+                                        const cleanText = e.target.value.replace(/[\n\r]/g, " ");
+
+                                        // 2. Pecah berdasarkan koma, tapi hapus spasi berlebih di AWAL kata saja (mencegah spasi beranak)
+                                        const newSkills = cleanText
+                                            .split(",")
+                                            .map((s) => s.replace(/^\s+/, ""));
+
+                                        upd(null, "skills", newSkills);
+                                    }}
+                                    placeholder="Pisahkan dengan koma. Contoh: Data Analysis, Python, React.js, Agile Methodology, SQL..."
+                                />
+                                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                                    {(activeCv.skills || [])
+                                        .filter((s) => s.trim())
+                                        .map((s, i) => (
+                                            <span
+                                                key={i}
+                                                className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-semibold rounded-md border border-slate-200"
+                                            >
+                                                {s.trim()}
+                                            </span>
+                                        ))}
+                                </div>
+                            </div>
+
+                            <div className="bg-white p-4 md:p-5 rounded-xl border border-slate-200 shadow-sm">
+                                <div className="flex justify-between items-center mb-3">
+                                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                                        Bahasa yang Dikuasai
+                                    </label>
+                                    <button
+                                        onClick={() =>
+                                            addArr("languages", {
+                                                id: "lang_" + Date.now(),
+                                                name: "",
+                                                level: "Lancar (Fluent)",
+                                            })
+                                        }
+                                        className="text-[10px] font-bold px-2.5 py-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-md transition flex items-center gap-1"
+                                    >
+                                        <i className="fa-solid fa-plus"></i> Tambah Bahasa
+                                    </button>
+                                </div>
+                                {activeCv.languages?.map((lang) => (
+                                    <div
+                                        key={lang.id}
+                                        className="flex flex-col sm:flex-row gap-2 mb-2 items-center w-full"
+                                    >
+                                        <input
+                                            type="text"
+                                            className="w-full sm:flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-md outline-none text-[12px] focus:bg-white focus:border-slate-400 transition"
+                                            value={lang.name}
+                                            onChange={(e) =>
+                                                updArr("languages", lang.id, "name", e.target.value)
+                                            }
+                                            placeholder="Bahasa Indonesia / Bahasa Inggris"
+                                        />
+                                        <div className="flex gap-2 w-full sm:w-auto">
+                                            <select
+                                                className="flex-1 sm:w-40 px-3 py-2 bg-slate-50 border border-slate-200 rounded-md outline-none text-[12px] focus:bg-white focus:border-slate-400 transition"
+                                                value={lang.level}
+                                                onChange={(e) =>
+                                                    updArr(
+                                                        "languages",
+                                                        lang.id,
+                                                        "level",
+                                                        e.target.value,
+                                                    )
+                                                }
+                                            >
+                                                <option>Penutur Asli (Native)</option>
+                                                <option>Lancar (Fluent)</option>
+                                                <option>Menengah (Intermediate)</option>
+                                                <option>Dasar (Basic)</option>
+                                            </select>
+                                            <button
+                                                onClick={() => delArr("languages", lang.id)}
+                                                className="text-slate-400 hover:text-red-500 p-2 bg-slate-50 rounded-md border border-slate-200 hover:bg-red-50 transition shrink-0"
+                                            >
+                                                <i className="fa-solid fa-trash text-[11px]"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    );
+
+                if (sid === "summary")
+                    return (
+                        <div className="animate-slideUp max-w-2xl mx-auto w-full">
+                            <h2 className="text-[18px] font-bold text-slate-900 tracking-tight mb-0.5">
+                                Ringkasan Eksekutif (Summary)
+                            </h2>
+                            <p className="text-[12px] text-slate-500 mb-4">
+                                Ringkasan profil profesional yang memikat perhatian recruiter
+                                di 5 detik pertama.
+                            </p>
+
+                            <div className="bg-white p-4 md:p-5 rounded-xl border border-slate-200 shadow-sm">
+                                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">
+                                    Ide Mentah Anda
+                                </label>
+                                <textarea
+                                    className="w-full px-3 py-2 border border-slate-200 bg-slate-50 rounded-md text-[12px] min-h-[80px] outline-none focus:bg-white focus:border-slate-400 transition"
+                                    value={activeCv.summary?.rawText || ""}
+                                    onChange={(e) => upd("summary", "rawText", e.target.value)}
+                                    placeholder="Tuliskan secara singkat: Siapa Anda? Sudah berapa lama pengalaman Anda? Apa keahlian spesifik Anda?"
+                                />
+
+                                <div className="flex justify-center my-3.5 relative">
+                                    <div className="absolute w-full h-px bg-slate-100 top-1/2"></div>
+                                    <button
+                                        onClick={async () => {
+                                            if (!activeCv.summary?.rawText) {
+                                                alert("Isi ide mentah Anda terlebih dahulu.");
+                                                return;
+                                            }
+                                            setAiLoading(true);
+
+                                            // 1. Buat System Prompt khusus untuk Summary agar berbentuk paragraf
+                                            const summarySystem = `Anda adalah elite career coach. Tulis Ringkasan Eksekutif (Professional Summary) dalam Bahasa Indonesia.
+ATURAN KERAS:
+1. HARUS berbentuk SATU paragraf naratif yang padat dan elegan (maksimal 3-4 kalimat).
+2. DILARANG KERAS menggunakan bullet points (•, *, -) atau list. Jangan ada baris baru (enter).
+3. TANPA BASA-BASI (Jangan gunakan awalan seperti "Berikut adalah..."). Langsung mulai dengan profesi atau keahlian.`;
+
+                                            // 2. Perintah spesifik
+                                            const promptText = `Sintesis draf berikut menjadi satu paragraf ringkasan eksekutif untuk target posisi "${activeCv.targetRole}". Draf Anda: ${activeCv.summary.rawText}`;
+
+                                            // 3. Panggil AI dengan mengirimkan aturan khususnya
+                                            const res = await callGemini(promptText, summarySystem);
+
+                                            // 4. Pembersih otomatis (menghapus bullet/simbol/enter jika AI bandel)
+                                            const cleanRes = res
+                                                .replace(/[•\*\-]/g, "")
+                                                .replace(/\n/g, " ")
+                                                .replace(/\s{2,}/g, " ")
+                                                .trim();
+
+                                            upd("summary", "finalAiText", cleanRes);
+                                            setAiLoading(false);
+                                        }}
+                                        className="relative z-10 text-[10px] font-bold text-white px-3 py-1.5 rounded-full shadow-sm hover:shadow-md transition transform hover:scale-105 flex items-center gap-1.5"
+                                        style={{ backgroundColor: BRAND.maroon }}
+                                    >
+                                        <i className="fa-solid fa-brain"></i> Sintesis Otomatis
+                                        dengan AI
+                                    </button>
+                                </div>
+
+                                <label
+                                    className="block text-[10px] font-bold mb-1.5 uppercase tracking-wide"
+                                    style={{ color: BRAND.maroon }}
+                                >
+                                    Teks Final Siap Cetak
+                                </label>
+                                <textarea
+                                    className="w-full px-3 py-2 border-2 border-slate-100 bg-slate-50 rounded-md text-[12px] min-h-[100px] outline-none shadow-sm leading-relaxed focus:bg-white focus:border-slate-400 transition"
+                                    value={activeCv.summary?.finalAiText || ""}
+                                    onChange={(e) =>
+                                        upd("summary", "finalAiText", e.target.value)
+                                    }
+                                    placeholder="Narasi profesional tingkat eksekutif akan dihasilkan oleh sistem AI di sini..."
+                                />
+                            </div>
+                        </div>
+                    );
+
+                if (sid === "finish")
+                    return (
+                        <div className="text-center py-6 lg:py-10 animate-slideUp w-full">
+                            <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3 bg-emerald-50 text-emerald-500 shadow-sm border border-emerald-100">
+                                <i className="fa-solid fa-flag-checkered text-xl"></i>
+                            </div>
+                            <h2
+                                className="text-[22px] font-bold text-slate-900 mb-1.5 tracking-tight"
+                                style={{ fontFamily: "'Poppins',sans-serif" }}
+                            >
+                                Dokumen Siap Diunduh!
+                            </h2>
+                            <p className="text-slate-500 text-[12px] max-w-md mx-auto mb-6 leading-relaxed">
+                                Data riwayat Anda telah direkayasa ke dalam struktur format
+                                ATS universal yang ramah pemindaian mesin.
+                            </p>
+
+                            <div className="flex flex-col sm:flex-row gap-2.5 justify-center px-4">
+                                <button
+                                    onClick={handleSave}
+                                    className="w-full sm:w-auto px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-bold rounded-md shadow-sm transition flex items-center justify-center gap-1.5 text-[11px]"
+                                >
+                                    <i className="fa-solid fa-cloud-arrow-up text-[13px]"></i>{" "}
+                                    Simpan ke Cloud
+                                </button>
+                                <button
+                                    onClick={handleExportWord}
+                                    disabled={exportingWord}
+                                    className="w-full sm:w-auto px-4 py-2.5 text-white font-bold rounded-md shadow-sm hover:shadow-md transition flex items-center justify-center gap-1.5 disabled:opacity-70 text-[11px]"
+                                    style={{ backgroundColor: "#2b579a" }}
+                                >
+                                    {exportingWord ? (
+                                        <>
+                                            <i className="fa-solid fa-spinner fa-spin text-[13px]"></i>{" "}
+                                            Menyusun Word...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fa-solid fa-file-word text-[13px]"></i>{" "}
+                                            Unduh MS Word
+                                        </>
+                                    )}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowMobilePreview(false);
+                                        setTimeout(() => window.print(), 300);
+                                    }}
+                                    className="w-full sm:w-auto px-4 py-2.5 text-white font-bold rounded-md shadow-sm hover:shadow-md transition flex items-center justify-center gap-1.5 text-[11px]"
+                                    style={{ backgroundColor: BRAND.slateDark }}
+                                >
+                                    <i className="fa-solid fa-print text-[13px]"></i> Cetak PDF
+                                </button>
+                            </div>
+                        </div>
+                    );
+
+                return null;
+            };
+
+            // ─── ATS PREVIEW (LIVE RENDER - MUNCUL DI PRINT) ───
+            const ATSPreview = () => {
+                const d = activeCv;
+                if (!d) return null;
+
+                const fmtDate = (dt) => {
+                    if (!dt) return "";
+                    const date = new Date(dt);
+                    return date.toLocaleDateString("id-ID", {
+                        month: "long",
+                        year: "numeric",
+                    });
+                };
+
+                return (
+                    <div
+                        id="cv-preview-content"
+                        className="bg-white p-8 sm:p-10 min-h-[1122px] print:min-h-0 text-[10.5pt] text-black mx-auto shadow-sm print:shadow-none border border-slate-200 print:border-none"
+                        style={{
+                            width: "100%",
+                            maxWidth: "794px",
+                            fontFamily: '"Arial", sans-serif',
+                            lineHeight: "1.4",
+                        }}
+                    >
+                        <div className="mb-6">
+                            <h1 className="font-bold uppercase text-[15pt] mb-1 text-black">
+                                {d.personal?.fullName || "NAMA LENGKAP"}
+                            </h1>
+                            <div className="text-[10pt] text-gray-800 tracking-wide">
+                                {[
+                                    d.personal?.location,
+                                    d.personal?.phone,
+                                    d.personal?.email,
+                                    d.personal?.linkedin?.replace(/^https?:\/\//, ""),
+                                ]
+                                    .filter(Boolean)
+                                    .join(" / ")}
+                            </div>
+                        </div>
+
+                        {(d.summary?.finalAiText || d.summary?.rawText) && (
+                            <div className="mb-4">
+                                <h2 className="text-[11pt] font-bold uppercase mb-2 border-b-[1.5px] border-black pb-0.5 tracking-wide text-black">
+                                    Profil Singkat
+                                </h2>
+                                <p className="text-justify text-[11pt] text-gray-900">
+                                    {d.summary?.finalAiText || d.summary?.rawText}
+                                </p>
+                            </div>
+                        )}
+
+                        {d.education?.length > 0 && (
+                            <div className="mb-4">
+                                <h2 className="text-[11pt] font-bold uppercase mb-2 border-b-[1.5px] border-black pb-0.5 tracking-wide text-black">
+                                    Pendidikan
+                                </h2>
+                                {d.education.map((e, idx) => {
+                                    const eduTitleParts = [
+                                        e.degree?.toUpperCase(),
+                                        e.field?.toUpperCase(),
+                                        e.grade ? `IPK ${e.grade}` : null,
+                                    ]
+                                        .filter(Boolean)
+                                        .join(" / ");
+                                    const schoolParts = [
+                                        `${fmtDate(e.startDate)} – ${fmtDate(e.endDate)}`,
+                                        e.school,
+                                    ]
+                                        .filter(Boolean)
+                                        .join(" / ");
+                                    return (
+                                        <div key={idx} className="mb-3">
+                                            <div className="font-bold text-[11pt] text-black">
+                                                {eduTitleParts || "TINGKAT / PROGRAM STUDI"}
+                                            </div>
+                                            <div className="text-[11pt] text-black mb-1">
+                                                {schoolParts}
+                                            </div>
+                                            {e.achievements && (
+                                                <div
+                                                    className="pl-4 whitespace-pre-wrap text-[11pt] text-gray-900"
+                                                    style={{ textIndent: "-1rem" }}
+                                                >
+                                                    {e.achievements.split("\n").map((line, i) => {
+                                                        const cleanLine = line
+                                                            .replace(/^•\s*/, "")
+                                                            .trim();
+                                                        return cleanLine ? (
+                                                            <div key={i}>• {cleanLine}</div>
+                                                        ) : null;
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {d.experience?.length > 0 && (
+                            <div className="mb-4">
+                                <h2 className="text-[11pt] font-bold uppercase mb-2 border-b-[1.5px] border-black pb-0.5 tracking-wide text-black">
+                                    Pengalaman Kerja
+                                </h2>
+                                {d.experience.map((e, idx) => {
+                                    const roleCompany = [e.role, e.company]
+                                        .filter(Boolean)
+                                        .join(" / ");
+                                    const dateStr = `${fmtDate(e.startDate)} – ${e.current ? "Saat Ini" : fmtDate(e.endDate)}`;
+                                    return (
+                                        <div key={idx} className="mb-4">
+                                            <div className="font-bold text-[11pt] text-black">
+                                                {roleCompany || "POSISI / NAMA PERUSAHAAN"}
+                                            </div>
+                                            <div className="text-[11pt] text-black mb-1.5">
+                                                {dateStr}
+                                            </div>
+                                            <div
+                                                className="pl-4 whitespace-pre-wrap text-[11pt] text-gray-900"
+                                                style={{ textIndent: "-1rem" }}
+                                            >
+                                                {(e.description || e.rawDescription || "")
+                                                    .split("\n")
+                                                    .map((line, i) => {
+                                                        const cleanLine = line
+                                                            .replace(/^•\s*/, "")
+                                                            .trim();
+                                                        return cleanLine ? (
+                                                            <div key={i}>• {cleanLine}</div>
+                                                        ) : null;
+                                                    })}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {d.certifications?.length > 0 && (
+                            <div className="mb-4">
+                                <h2 className="text-[11pt] font-bold uppercase mb-2 border-b-[1.5px] border-black pb-0.5 tracking-wide text-black">
+                                    Sertifikasi Dan Pelatihan
+                                </h2>
+                                {d.certifications.map((c, idx) => {
+                                    const certStr = [c.name, c.issuer, c.year]
+                                        .filter(Boolean)
+                                        .join(" / ");
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className="mb-1 text-[11pt] text-gray-900 pl-4"
+                                            style={{ textIndent: "-1rem" }}
+                                        >
+                                            • {certStr}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {(d.skills?.filter((s) => s.trim()).length > 0 ||
+                            d.languages?.length > 0) && (
+                                <div className="mb-4">
+                                    <h2 className="text-[11pt] font-bold uppercase mb-2 border-b-[1.5px] border-black pb-0.5 tracking-wide text-black">
+                                        Keahlian Dan Keterampilan
+                                    </h2>
+                                    {d.skills?.filter((s) => s.trim()).length > 0 && (
+                                        <div className="text-[11pt] mb-1 text-gray-900">
+                                            <span className="font-bold">Keterampilan Teknis: </span>
+                                            {d.skills.filter((s) => s.trim()).join(", ")}
+                                        </div>
+                                    )}
+                                    {d.languages?.length > 0 && (
+                                        <div className="text-[11pt] text-gray-900">
+                                            <span className="font-bold">Bahasa: </span>
+                                            {d.languages
+                                                .map((l) => `${l.name} (${l.level})`)
+                                                .join(", ")}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                    </div>
+                );
+            };
+
+            // ─── ROUTING VIEWS ───
+            if (view === "landing")
+                return (
+                    <div className="min-h-screen bg-white flex flex-col font-sans selection:bg-rose-100 bg-grid-pattern relative overflow-x-hidden">
+                        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-rose-200/40 blur-[100px] animate-pulse-soft mix-blend-multiply"></div>
+                        <div
+                            className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-200/30 blur-[120px] animate-pulse-soft mix-blend-multiply"
+                            style={{ animationDelay: "1s" }}
+                        ></div>
+
+                        <header className="px-5 py-4 flex justify-between items-center max-w-6xl mx-auto w-full z-20 backdrop-blur-md bg-white/40 border-b border-slate-200/50 sticky top-0">
+                            <AzandhiLogo variant="light" className="h-6" />
+                            <button
+                                onClick={() => setView("auth")}
+                                className="text-[11px] font-bold text-slate-700 bg-white/80 hover:bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200 transition flex items-center gap-1.5"
+                            >
+                                Masuk Workspace <i className="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </header>
+
+                        <main className="flex-1 flex flex-col items-center justify-center text-center px-4 relative z-10 pb-16 pt-8">
+                            <div
+                                className="px-3 py-1.5 rounded-full text-[9px] md:text-[10px] font-bold mb-6 tracking-widest uppercase border bg-white/80 backdrop-blur-sm shadow-sm flex items-center gap-1.5 animate-slideUp"
+                                style={{
+                                    color: BRAND.maroon,
+                                    borderColor: `${BRAND.maroon}30`,
+                                }}
+                            >
+                                <span
+                                    className="w-1.5 h-1.5 rounded-full animate-pulse-soft"
+                                    style={{ backgroundColor: BRAND.maroon }}
+                                ></span>{" "}
+                                AI-COS V3.0 Live Engine
+                            </div>
+
+                            <h1
+                                className="text-3xl md:text-5xl lg:text-[4rem] font-extrabold text-slate-900 max-w-3xl leading-[1.15] md:leading-[1.1] mb-5 tracking-tight animate-slideUp"
+                                style={{
+                                    fontFamily: "'Poppins',sans-serif",
+                                    animationDelay: "0.1s",
+                                }}
+                            >
+                                Format Karir Anda <br className="hidden md:block" /> Secara{" "}
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B0D2F] to-[#E11D48]">
+                                    Presisi & Analitis
+                                </span>
+                            </h1>
+
+                            <p
+                                className="text-[12px] md:text-[14px] text-slate-600 max-w-xl mb-8 leading-relaxed animate-slideUp px-2 font-medium"
+                                style={{ animationDelay: "0.2s" }}
+                            >
+                                Berhenti menebak-nebak filter ATS korporat. Gunakan
+                                infrastruktur AI kami untuk merangkai CV yang mampu menembus
+                                sistem seleksi otomatis dengan akurasi matematis.
+                            </p>
+
+                            <div
+                                className="flex flex-col sm:flex-row gap-3 animate-slideUp"
+                                style={{ animationDelay: "0.3s" }}
+                            >
+                                <button
+                                    onClick={() => setView("auth")}
+                                    className="text-white px-6 py-3 rounded-lg font-bold text-[13px] flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform"
+                                    style={{ backgroundColor: BRAND.slateDark }}
+                                >
+                                    Mulai Konstruksi CV{" "}
+                                    <i className="fa-solid fa-rocket text-rose-300"></i>
+                                </button>
+                            </div>
+
+                            <div
+                                className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-3xl mx-auto animate-slideUp"
+                                style={{ animationDelay: "0.4s" }}
+                            >
+                                <div className="flex flex-col items-center gap-2 bg-white/60 backdrop-blur-sm p-3 rounded-xl border border-slate-200/50 shadow-sm">
+                                    <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
+                                        <i className="fa-solid fa-brain text-[13px]"></i>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-700">
+                                        Gemini AI Engine
+                                    </span>
+                                </div>
+                                <div className="flex flex-col items-center gap-2 bg-white/60 backdrop-blur-sm p-3 rounded-xl border border-slate-200/50 shadow-sm">
+                                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        <i className="fa-solid fa-file-shield text-[13px]"></i>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-700">
+                                        ATS Optimized
+                                    </span>
+                                </div>
+                                <div className="flex flex-col items-center gap-2 bg-white/60 backdrop-blur-sm p-3 rounded-xl border border-slate-200/50 shadow-sm">
+                                    <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                        <i className="fa-solid fa-chart-line text-[13px]"></i>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-700">
+                                        Impact Analytics
+                                    </span>
+                                </div>
+                                <div className="flex flex-col items-center gap-2 bg-white/60 backdrop-blur-sm p-3 rounded-xl border border-slate-200/50 shadow-sm">
+                                    <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                        <i className="fa-solid fa-lock text-[13px]"></i>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-700">
+                                        Encrypted Cloud
+                                    </span>
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                );
+
+            if (view === "auth")
+                return (
+                    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 font-sans">
+                        <div
+                            className="w-full md:w-[40%] p-6 md:p-10 flex flex-col justify-center relative overflow-hidden shrink-0"
+                            style={{ backgroundColor: BRAND.slateDark }}
+                        >
+                            <div className="absolute top-0 right-0 w-[250px] h-[250px] md:w-[350px] md:h-[350px] bg-rose-500 rounded-full blur-[80px] opacity-10 -z-0"></div>
+                            <div className="z-10 mt-2 md:mt-0">
+                                <AzandhiLogo
+                                    variant="dark"
+                                    className="h-6 md:h-8 mb-6 md:mb-10"
+                                    showText={false}
+                                />
+                                <h2
+                                    className="text-xl md:text-2xl font-bold text-white mb-2 leading-tight"
+                                    style={{ fontFamily: "'Poppins',sans-serif" }}
+                                >
+                                    Platform Karier
+                                    <br />
+                                    Eksklusif.
+                                </h2>
+                                <p className="text-slate-400 text-[12px] leading-relaxed max-w-xs">
+                                    Akses ruang kerja terenkripsi Anda. Sinkronisasi data aman
+                                    di cloud pribadi.
+                                </p>
+                            </div>
+                        </div>
+                        <div className="w-full md:w-[60%] p-5 md:p-8 flex items-center justify-center bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.02)] z-10 md:rounded-l-2xl md:-ml-4 flex-1">
+                            <div className="w-full max-w-[280px] mx-auto">
+                                <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center mb-4 text-slate-800 border border-slate-100">
+                                    <i className="fa-solid fa-lock text-xs"></i>
+                                </div>
+                                <h2
+                                    className="text-lg font-bold text-slate-900 mb-1"
+                                    style={{ fontFamily: "'Poppins',sans-serif" }}
+                                >
+                                    Otentikasi Akun
+                                </h2>
+                                <p className="text-[10px] text-slate-500 mb-6">
+                                    Mohon masukkan alamat email yang valid untuk membuka sesi.
+                                </p>
+
+                                <div className="space-y-3">
+                                    <div>
+                                        <label className="block text-[9px] font-bold text-slate-600 mb-1 uppercase tracking-wide">
+                                            Alamat Email
+                                        </label>
+                                        <div className="relative">
+                                            <i className="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]"></i>
+                                            <input
+                                                type="email"
+                                                value={emailInput}
+                                                onChange={(e) => setEmailInput(e.target.value)}
+                                                placeholder="anda@email.com"
+                                                className="w-full px-3 py-2 pl-8 border border-slate-200 rounded-md outline-none transition focus:border-slate-400 focus:bg-slate-50 text-[12px]"
+                                            />
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={handleLogin}
+                                        className="w-full text-white font-bold py-2 rounded-md transition shadow-sm hover:shadow-md transform hover:-translate-y-0.5 mt-1 text-[11px]"
+                                        style={{ backgroundColor: BRAND.maroon }}
+                                    >
+                                        Masuk ke Dashboard{" "}
+                                        <i className="fa-solid fa-arrow-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+            if (view === "dashboard")
+                return (
+                    <div className="min-h-screen bg-slate-50 flex flex-col">
+                        <header className="bg-white h-12 md:h-14 border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-20 shadow-sm">
+                            <AzandhiLogo variant="light" className="h-5" />
+                            <div className="flex items-center gap-3">
+                                <div className="text-right hidden sm:block">
+                                    <p className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">
+                                        Sesi Aktif
+                                    </p>
+                                    <p className="text-[10px] font-bold text-slate-800">
+                                        {user?.email}
+                                    </p>
+                                </div>
+                                <div className="h-4 w-px bg-slate-200 hidden sm:block"></div>
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-7 h-7 rounded-md bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition"
+                                    title="Keluar"
+                                >
+                                    <i className="fa-solid fa-arrow-right-from-bracket text-[10px]"></i>
+                                </button>
+                            </div>
+                        </header>
+
+                        <main className="flex-1 max-w-5xl w-full mx-auto p-4 md:p-8 mt-1">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-5 md:mb-6 gap-2.5">
+                                <div>
+                                    <h1
+                                        className="text-lg md:text-xl font-bold text-slate-900 mb-0.5 tracking-tight"
+                                        style={{ fontFamily: "'Poppins',sans-serif" }}
+                                    >
+                                        Dokumen Saya
+                                    </h1>
+                                    <p className="text-slate-500 text-[10px]">
+                                        Kelola dan sunting draf CV cerdas Anda di ruang ini.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={handleCreateNew}
+                                    className="w-full sm:w-auto text-white px-3 py-2 rounded-md font-bold text-[11px] flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md transition hover:-translate-y-0.5"
+                                    style={{ backgroundColor: BRAND.slateDark }}
+                                >
+                                    <i className="fa-solid fa-plus"></i> Inisiasi CV Baru
+                                </button>
+                            </div>
+
+                            {cvs.length === 0 ? (
+                                <div className="text-center py-10 bg-white rounded-lg border border-slate-200 shadow-sm">
+                                    <div className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-2.5 text-slate-300 text-sm">
+                                        <i className="fa-regular fa-folder-open"></i>
+                                    </div>
+                                    <h3 className="text-[12px] font-bold text-slate-700 mb-0.5">
+                                        Belum ada CV yang tersimpan
+                                    </h3>
+                                    <p className="text-slate-500 text-[10px]">
+                                        Klik 'Inisiasi CV Baru' untuk mulai menyusun.
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                                    {cvs.map((cv) => (
+                                        <div
+                                            key={cv.id}
+                                            onClick={() => handleOpenCV(cv)}
+                                            className="bg-white border border-slate-200 rounded-lg p-3 md:p-4 cursor-pointer hover:shadow-md hover:border-slate-300 relative group transition-all duration-200 flex flex-col min-h-[130px]"
+                                        >
+                                            <button
+                                                onClick={(e) => handleDeleteCV(e, cv.id)}
+                                                className="absolute top-2.5 right-2.5 text-slate-300 hover:text-red-500 md:opacity-0 group-hover:opacity-100 transition p-1 bg-slate-50 rounded"
+                                            >
+                                                <i className="fa-solid fa-trash text-[9px]"></i>
+                                            </button>
+
+                                            <div
+                                                className="w-8 h-8 rounded-md flex items-center justify-center text-white mb-2.5 shadow-sm"
+                                                style={{ backgroundColor: BRAND.maroon }}
+                                            >
+                                                <i className="fa-solid fa-file-invoice text-[11px]"></i>
+                                            </div>
+
+                                            <h3
+                                                className="font-bold text-[12px] text-slate-900 truncate pr-5 mb-0.5"
+                                                style={{ fontFamily: "'Poppins',sans-serif" }}
+                                            >
+                                                {cv.title}
+                                            </h3>
+                                            <p
+                                                className="text-[8px] font-bold uppercase tracking-wider mb-auto truncate"
+                                                style={{ color: BRAND.maroon }}
+                                            >
+                                                {cv.targetRole || "Posisi Belum Diisi"}
+                                            </p>
+
+                                            <div className="flex items-center justify-between border-t border-slate-100 pt-2 mt-2.5">
+                                                <div className="flex items-center gap-1 text-[8px] font-medium text-slate-400">
+                                                    <i className="fa-regular fa-clock"></i>{" "}
+                                                    {new Date(cv.lastModified).toLocaleDateString(
+                                                        "id-ID",
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </main>
+                    </div>
+                );
+
+            // ─── BUILDER UI (DIPISAHKAN DARI ELEMEN PRINT UTAMA) ───
+            return (
+                <>
+                    <div className="hidden print:block w-full print-container">
+                        <ATSPreview />
+                    </div>
+
+                    <div className="h-screen bg-white flex flex-col overflow-hidden w-screen print-hidden">
+                        <header className="h-12 border-b border-slate-200 flex items-center justify-between px-3 md:px-5 bg-slate-50 shrink-0 z-20">
+                            <div className="flex items-center gap-2 overflow-hidden pr-2">
+                                <button
+                                    onClick={() => setView("dashboard")}
+                                    className="flex items-center justify-center w-6 h-6 rounded bg-white border border-slate-200 text-slate-500 hover:bg-slate-100 transition shrink-0"
+                                    title="Kembali"
+                                >
+                                    <i className="fa-solid fa-arrow-left text-[10px]"></i>
+                                </button>
+                                <div className="h-4 w-px bg-slate-200 shrink-0"></div>
+                                <span className="font-bold text-slate-800 text-[11px] truncate">
+                                    {activeCv.title}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                                {aiLoading && (
+                                    <span className="text-[9px] font-bold text-slate-500 hidden sm:flex items-center gap-1">
+                                        <i className="fa-solid fa-spinner fa-spin"></i>{" "}
+                                        Memproses...
+                                    </span>
+                                )}
+                                <button
+                                    onClick={handleSave}
+                                    disabled={saving}
+                                    className="text-[9px] font-bold px-2.5 py-1.5 rounded text-white shadow-sm hover:shadow-md transition flex items-center gap-1"
+                                    style={{ backgroundColor: BRAND.slateDark }}
+                                >
+                                    {saving ? (
+                                        <i className="fa-solid fa-circle-notch fa-spin"></i>
+                                    ) : (
+                                        <i className="fa-solid fa-cloud-arrow-up"></i>
+                                    )}{" "}
+                                    <span className="hidden sm:block">
+                                        {saving ? "Menyimpan..." : "Simpan"}
+                                    </span>
+                                </button>
+                            </div>
+                        </header>
+
+                        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+                            <div className="lg:hidden flex overflow-x-auto bg-white border-b border-slate-200 px-3 py-1.5 shrink-0 gap-1.5 no-scrollbar z-10 shadow-sm">
+                                {STEPS.map((s, i) => {
+                                    const active = step === i;
+                                    return (
+                                        <button
+                                            key={i}
+                                            onClick={() => setStep(i)}
+                                            className={`flex items-center shrink-0 gap-1.5 px-2.5 py-1 rounded text-[9px] font-bold whitespace-nowrap transition-colors border ${active ? "text-white border-transparent" : "bg-slate-50 text-slate-500 border-slate-200"}`}
+                                            style={active ? { backgroundColor: BRAND.maroon } : {}}
+                                        >
+                                            <i className={`fa-solid ${s.icon}`}></i> {s.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            <aside className="hidden lg:flex w-48 bg-white border-r border-slate-200 flex-col z-10 shrink-0">
+                                <div className="p-3 pb-1">
+                                    <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                                        Menu CV
+                                    </p>
+                                </div>
+                                <nav className="flex-1 overflow-y-auto px-2 pb-3 space-y-0.5 custom-scrollbar">
+                                    {STEPS.map((s, i) => {
+                                        const active = step === i;
+                                        return (
+                                            <button
+                                                key={i}
+                                                onClick={() => setStep(i)}
+                                                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-md text-left transition-all duration-200 ${active ? "bg-slate-50" : "hover:bg-slate-50"}`}
+                                                style={{
+                                                    color: active ? BRAND.slateDark : "#64748b",
+                                                }}
+                                            >
+                                                <div
+                                                    className={`w-5 h-5 rounded flex items-center justify-center shrink-0 transition-colors ${active ? "text-white" : "bg-slate-100 text-slate-400"}`}
+                                                    style={
+                                                        active ? { backgroundColor: BRAND.maroon } : {}
+                                                    }
+                                                >
+                                                    <i className={`fa-solid ${s.icon} text-[9px]`}></i>
+                                                </div>
+                                                <div className="overflow-hidden">
+                                                    <div className="text-[10px] font-bold leading-tight truncate">
+                                                        {s.label}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </nav>
+                            </aside>
+
+                            <section
+                                className={`flex-1 flex flex-col relative z-0 bg-slate-50/50 ${showMobilePreview ? "hidden lg:flex" : "flex"}`}
+                            >
+                                <div className="flex-1 overflow-y-auto p-4 md:p-5 lg:p-6 custom-scrollbar relative">
+                                    {renderStep()}
+                                </div>
+                                {/* Solid Footer */}
+                                <div className="bg-white border-t border-slate-200 px-4 lg:px-6 py-2.5 flex justify-between items-center shrink-0 z-20">
+                                    <button
+                                        type="button"
+                                        onClick={() => setStep(Math.max(0, step - 1))}
+                                        disabled={step === 0}
+                                        className="px-3 py-1.5 text-[10px] font-bold text-slate-500 disabled:opacity-30 hover:bg-slate-100 rounded transition border border-slate-200 shrink-0"
+                                    >
+                                        Kembali
+                                    </button>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                        {step < STEPS.length - 1 ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => setStep(step + 1)}
+                                                className="px-4 py-1.5 text-[10px] font-bold text-white rounded shadow-sm transition flex items-center gap-1.5"
+                                                style={{ backgroundColor: BRAND.slateDark }}
+                                            >
+                                                Lanjut{" "}
+                                                <i className="fa-solid fa-arrow-right text-[8px]"></i>
+                                            </button>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => window.print()}
+                                                className="px-4 py-1.5 text-[10px] font-bold text-white rounded shadow-sm transition flex items-center gap-1.5"
+                                                style={{ backgroundColor: BRAND.maroon }}
+                                            >
+                                                <i className="fa-solid fa-print"></i> Cetak PDF
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </section>
+
+                            <aside
+                                className={`${showMobilePreview ? "flex fixed inset-0 z-50 bg-slate-200 flex-col pt-0" : "hidden lg:flex lg:relative lg:pt-0"} w-full lg:w-[45%] xl:w-[45%] flex-col overflow-hidden border-l border-slate-200 bg-slate-200/60`}
+                            >
+                                {showMobilePreview && (
+                                    <div className="bg-slate-900 p-2.5 flex justify-between items-center lg:hidden shrink-0 shadow-md">
+                                        <span className="text-white font-bold text-[11px]">
+                                            <i className="fa-solid fa-eye mr-1.5 text-slate-400"></i>{" "}
+                                            Pratinjau Dokumen
+                                        </span>
+                                        <button
+                                            onClick={() => setShowMobilePreview(false)}
+                                            className="w-6 h-6 rounded bg-slate-800 text-white flex items-center justify-center hover:bg-rose-500 transition"
+                                        >
+                                            <i className="fa-solid fa-times text-[10px]"></i>
+                                        </button>
+                                    </div>
+                                )}
+
+                                <div className="h-8 bg-white border-b border-slate-200 hidden lg:flex items-center justify-center shrink-0">
+                                    <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400">
+                                        <i className="fa-solid fa-eye mr-1"></i> Pratinjau A4
+                                    </span>
+                                </div>
+                                <div className="flex-1 overflow-y-auto p-4 flex justify-center custom-scrollbar">
+                                    <ATSPreview />
+                                </div>
+                            </aside>
+
+                            {!showMobilePreview && (
+                                <button
+                                    onClick={() => setShowMobilePreview(true)}
+                                    className="lg:hidden fixed bottom-[4.5rem] right-4 z-40 w-10 h-10 bg-slate-900 text-white rounded-full shadow-[0_5px_15px_rgba(0,0,0,0.3)] flex items-center justify-center transform transition hover:scale-105 border-2 border-white"
+                                >
+                                    <i className="fa-solid fa-file-pdf text-[15px]"></i>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
