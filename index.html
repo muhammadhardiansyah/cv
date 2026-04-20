@@ -433,6 +433,7 @@ ATURAN KERAS (WAJIB DIPATUHI):
                 experience: [],
                 education: [],
                 skills: [],
+                softSkills: [],
                 languages: [],
                 certifications: [],
             };
@@ -935,9 +936,18 @@ ATURAN KERAS (WAJIB DIPATUHI):
                         )
                         .filter(Boolean);
 
+                    const cleanSoftSkills = (cv.softSkills || [])
+                        .map((s) =>
+                            s
+                                .replace(/[\n\r\t]/g, " ")
+                                .replace(/\s{2,}/g, " ")
+                                .trim(),
+                        )
+                        .filter(Boolean);
+
                     const languages = cv.languages || [];
 
-                    if (cleanSkills.length > 0 || languages.length > 0) {
+                    if (cleanSkills.length > 0 || cleanSoftSkills.length > 0 || languages.length > 0) {
                         children.push(createSectionHeader("KEAHLIAN DAN KETERAMPILAN"));
 
                         if (cleanSkills.length > 0) {
@@ -952,6 +962,28 @@ ATURAN KERAS (WAJIB DIPATUHI):
                                         }),
                                         new TextRun({
                                             text: cleanSkills.join(", "),
+                                            size: 22,
+                                            font: FONT,
+                                        }),
+                                    ],
+                                    alignment: AlignmentType.LEFT, // Memaksa rata kiri agar tidak melebar
+                                    spacing: { after: 80, line: 276 },
+                                }),
+                            );
+                        }
+
+                        if (cleanSoftSkills.length > 0) {
+                            children.push(
+                                new Paragraph({
+                                    children: [
+                                        new TextRun({
+                                            text: "Keterampilan Non-Teknis: ",
+                                            bold: true,
+                                            size: 22,
+                                            font: FONT,
+                                        }),
+                                        new TextRun({
+                                            text: cleanSoftSkills.join(", "),
                                             size: 22,
                                             font: FONT,
                                         }),
@@ -1525,6 +1557,40 @@ ATURAN KERAS (WAJIB DIPATUHI):
                                 </div>
                             </div>
 
+                            <div className="bg-white p-4 md:p-5 rounded-xl border border-slate-200 shadow-sm mb-4">
+                                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">
+                                    Keahlian Non-Teknis (Soft Skills)
+                                </label>
+                                <textarea
+                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-md text-[12px] min-h-[90px] focus:bg-white focus:border-slate-400 outline-none transition shadow-inner leading-relaxed"
+                                    value={(activeCv.softSkills || []).join(", ")}
+                                    onChange={(e) => {
+                                        // 1. Ubah setiap tombol Enter (\n) menjadi spasi biasa agar tata letak tidak rusak
+                                        const cleanText = e.target.value.replace(/[\n\r]/g, " ");
+
+                                        // 2. Pecah berdasarkan koma, tapi hapus spasi berlebih di AWAL kata saja (mencegah spasi beranak)
+                                        const newSoftSkills = cleanText
+                                            .split(",")
+                                            .map((s) => s.replace(/^\s+/, ""));
+
+                                        upd(null, "softSkills", newSoftSkills);
+                                    }}
+                                    placeholder="Pisahkan dengan koma. Contoh: Leadership, Communication, Problem Solving, Time Management, Teamwork..."
+                                />
+                                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                                    {(activeCv.softSkills || [])
+                                        .filter((s) => s.trim())
+                                        .map((s, i) => (
+                                            <span
+                                                key={i}
+                                                className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-semibold rounded-md border border-slate-200"
+                                            >
+                                                {s.trim()}
+                                            </span>
+                                        ))}
+                                </div>
+                            </div>
+
                             <div className="bg-white p-4 md:p-5 rounded-xl border border-slate-200 shadow-sm">
                                 <div className="flex justify-between items-center mb-3">
                                     <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">
@@ -1891,6 +1957,7 @@ ATURAN KERAS:
                         )}
 
                         {(d.skills?.filter((s) => s.trim()).length > 0 ||
+                            d.softSkills?.filter((s) => s.trim()).length > 0 ||
                             d.languages?.length > 0) && (
                                 <div className="mb-4">
                                     <h2 className="text-[11pt] font-bold uppercase mb-2 border-b-[1.5px] border-black pb-0.5 tracking-wide text-black">
@@ -1900,6 +1967,12 @@ ATURAN KERAS:
                                         <div className="text-[11pt] mb-1 text-gray-900">
                                             <span className="font-bold">Keterampilan Teknis: </span>
                                             {d.skills.filter((s) => s.trim()).join(", ")}
+                                        </div>
+                                    )}
+                                    {d.softSkills?.filter((s) => s.trim()).length > 0 && (
+                                        <div className="text-[11pt] mb-1 text-gray-900">
+                                            <span className="font-bold">Keterampilan Non-Teknis: </span>
+                                            {d.softSkills.filter((s) => s.trim()).join(", ")}
                                         </div>
                                     )}
                                     {d.languages?.length > 0 && (
